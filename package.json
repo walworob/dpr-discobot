@@ -1,0 +1,32 @@
+{
+  "name": "dpr-discobot",
+  "version": "1.0.0",
+  "description": "Dread Pirate Roberts Discord Bot",
+  "main": "index.js",
+  "engines": {
+    "node": "11.6.0",
+    "npm": "6.5.0-next.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/walworob/dpr-DiscoBot.git"
+  },
+  "author": "walworob, kduhaime514, mcspeak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/walworob/dpr-DiscoBot/issues"
+  },
+  "homepage": "https://github.com/walworob/dpr-DiscoBot#readme",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "ffmpeg": "0.0.4",
+    "git": "^0.1.5",
+    "node-opus": "^0.3.1"
+  }
+}
