@@ -50,7 +50,15 @@ bot.on('message', message => {
                 voiceChannel.leave();
             });               
         }).catch(err => message.reply(err.toString()));
-    }     
+    } else if (message.content == "!steppin") {
+        var voiceChannel = message.member.voiceChannel;
+        voiceChannel.join().then(connection => {
+            dispatcher = connection.playFile('./clips/steppin-on-the-beach.mp3');
+            dispatcher.on("end", end => {
+                voiceChannel.leave();
+            });               
+        }).catch(err => message.reply(err.toString()));
+    }    
 });
 
 bot.login('NTMyNDM1Mjk5MDM3MzQ3ODQw.Dxccpg.n-OgT2Lx-f3zLxBKxuzKtsqfClQ');
