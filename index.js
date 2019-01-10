@@ -43,11 +43,7 @@ setInterval(() => {
 
 bot.on('message', message => {
     if (message.content == "!test") {
-        message.reply("Got !test");
         var voiceChannel = message.member.voiceChannel;
-        message.reply("Message:" + message.toString());
-        message.reply("Message member:" + message.member.toString());
-        message.reply("Voice channel:" + JSON.stringify(voiceChannel));
         voiceChannel.join().then(connection => {
             dispatcher = connection.playFile('./clips/BEAST_MODE.wav');
             dispatcher.on("end", end => {
