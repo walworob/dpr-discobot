@@ -2,7 +2,17 @@ const Discord = require("discord.js");
 const bot = new Discord.Client();
 
 const express = require('express');
-const app = express();
+const app = express();\
+
+const exec = require('child_process').exec;
+
+exec("pwd", function(error, stdout, stderr) {
+    sys.print('stdout: ' + stdout);
+    sys.print('stderr: ' + stderr);
+    if (error !== null) {
+        console.log('exec error: ' + error);
+    }
+});
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
