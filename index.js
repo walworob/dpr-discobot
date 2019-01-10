@@ -41,31 +41,36 @@ setInterval(() => {
     http.get('http://drp-discobot.herokuapp.com');
 }, 900000);
 
+
+var fs = require('fs');
 bot.on('message', message => {
-    if (message.content == "!test") {
+
+    if (message.content.charAt(0) == "!") {
+        var command = message.content.split("!")[1];
         var voiceChannel = message.member.voiceChannel;
-        voiceChannel.join().then(connection => {
-            dispatcher = connection.playFile('./clips/BEAST_MODE.wav');
-            dispatcher.on("end", end => {
-                voiceChannel.leave();
-            });               
-        }).catch(err => message.reply(err.toString()));
-    } else if (message.content == "!steppin") {
-        var voiceChannel = message.member.voiceChannel;
-        voiceChannel.join().then(connection => {
-            dispatcher = connection.playFile('./clips/steppin-on-the-beach.mp3');
-            dispatcher.on("end", end => {
-                voiceChannel.leave();
-            });               
-        }).catch(err => message.reply(err.toString()));
-    } else if (message.content == "!bowser") {
-	var voiceChannel = message.member.voiceChannel;
-	voiceChannel.join().then(connection => {
-            dispatcher = connection.playFile('./clips/bowser.wav');
-	    dispatcher.on("end", end => {
-                voiceChannel.leave();
+
+        if (command == "cmere") {
+            voiceChannel.join();
+        }
+        else if (command == "gtfo") {
+            voiceChannel.leave();
+        } else {
+            fs.readdir('./clips', function(err, files) {
+                files.forEach(function(file, index) {
+                    // message.channel.sendMessage("Found file: " + JSON.stringify(file));
+                    var fileName = file.split(".")[0];
+                    if (fileName == command) {
+                        
+                        voiceChannel.join().then(connection => {
+                            var dispatcher = connection.playFile('./clips/' + file);
+                            dispatcher.on("end", end => {
+                                voiceChannel.leave();
+                            });
+                        }).catch(err => message.reply(err.toString()));
+                    }
+                });
             });
-	}).catch(err => message.reply(err.toString()));
+        }
     }
 });
 
