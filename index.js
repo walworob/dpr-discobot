@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const bot = new Discord.Client();
 
 const express = require('express');
-const app = express();\
+const app = express();
 
 // const exec = require('child_process').exec;
 
