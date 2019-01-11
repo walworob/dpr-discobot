@@ -118,7 +118,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 
         if (newMember.nickname == "ManKyledandan") {
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/KyleChannelIntro');
+                var dispatcher = connection.playFile('./clips/KyleChannelIntro.wav');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                 });
