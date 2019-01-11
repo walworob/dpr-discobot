@@ -127,7 +127,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
         }
         else if (newMember.nickname == "Rectumis") {
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/RobbieHasArrived.wav');
+                var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                 });
