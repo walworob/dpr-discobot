@@ -18,6 +18,7 @@ const app = express();
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
 const port = process.env.PORT || 5000;
+var fs = require('fs');
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -41,8 +42,39 @@ setInterval(() => {
     http.get('http://drp-discobot.herokuapp.com');
 }, 900000);
 
+var populateCommandsList = function() {
+    var commandsList = [];
+    var files = fs.readdirSync('./clips')
+    files.forEach(function(file) {
+        var fileName = file.split(".")[0];
+        commandsList.push(fileName);
+    });
+    
+    return commandsList;
+};
 
-var fs = require('fs');
+var commands = {
+    list: [],
+    output: function(message) {
+        var commandsMessage = "Available soundbytes: [";
+        var index = 0;
+        this.list.forEach(command => {
+            commandsMessage = commandsMessage.concat("!").concat(command);
+
+            if (index != this.list.length - 1) {
+                commandsMessage = commandsMessage.concat(", ");
+            }
+            index++;
+        });
+        commandsMessage = commandsMessage.concat("]");
+        message.channel.send(commandsMessage);
+    },
+    populate: function() {
+        this.list = populateCommandsList();
+    }
+}
+commands.populate();
+
 bot.on('message', message => {
 
     if (message.content.charAt(0) == "!") {
@@ -51,16 +83,16 @@ bot.on('message', message => {
 
         if (command == "cmere") {
             voiceChannel.join();
-        }
-        else if (command == "gtfo") {
+        } else if (command == "gtfo") {
             voiceChannel.leave();
+        } else if (command == "list") {
+            commands.output(message);
         } else {
             fs.readdir('./clips', function(err, files) {
                 files.forEach(function(file, index) {
                     // message.channel.sendMessage("Found file: " + JSON.stringify(file));
                     var fileName = file.split(".")[0];
                     if (fileName == command) {
-                        
                         voiceChannel.join().then(connection => {
                             var dispatcher = connection.playFile('./clips/' + file);
                             dispatcher.on("end", end => {
