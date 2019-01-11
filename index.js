@@ -108,6 +108,46 @@ bot.on('message', message => {
     }
 });
 
+bot.on('voiceStateUpdate', (oldMember, newMember) => {
+    let newUserChannel = newMember.voiceChannel;
+    let oldUserChannel = oldMember.voiceChannel;
+
+    // User joins channel
+    if (oldUserChannel === undefined && newUserChannel !== undefined) {
+        let voiceChannel = newMember.voiceChannel;
+
+        if (newMember.nickname == "ManKyledandan") {
+            voiceChannel.join().then(connection => {
+                var dispatcher = connection.playFile('./clips/KyleChannelIntro');
+                dispatcher.on("end", end => {
+                    voiceChannel.leave();
+                });
+            }).catch(err => console.log(err.toString()));
+        }
+        else if (newMember.nickname == "Rectumis") {
+            voiceChannel.join().then(connection => {
+                var dispatcher = connection.playFile('./clips/RobbieChannelIntro.wav');
+                dispatcher.on("end", end => {
+                    voiceChannel.leave();
+                });
+            }).catch(err => console.log(err.toString()));
+        }
+        else if (newMember.nickname == "xKoolaidKam (Nick)") {
+            voiceChannel.join().then(connection => {
+                var dispatcher = connection.playFile('./clips/NickHasArrived.mp3');
+                dispatcher.on("end", end => {
+                    voiceChannel.leave();
+                });
+            }).catch(err => console.log(err.toString()));
+        }
+    }
+
+    // User leaves channel
+    else if (newUserChannel === undefined) {
+        // WE CAN DO WHATEVER HERE
+    }
+});
+
 bot.login('NTMyNDM1Mjk5MDM3MzQ3ODQw.Dxccpg.n-OgT2Lx-f3zLxBKxuzKtsqfClQ');
 
 /*var CommandListString = "";
