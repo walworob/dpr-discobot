@@ -115,6 +115,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // User joins channel
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
+        newMember.sendMessage(newMember.user.toString());
 
         if (newMember.nickname == "ManKyledandan") {
             voiceChannel.join().then(connection => {
