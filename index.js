@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const bot = new Discord.Client();
 
 const express = require('express');
+const _ = require("underscore");
 const app = express();
 
 // const sys = require('sys');
@@ -43,18 +44,20 @@ setInterval(() => {
 }, 900000);
 
 var populateCommandsList = function() {
-    var commandsList = [];
     var files = fs.readdirSync('./clips')
-    files.forEach(function(file) {
-        var fileName = file.split(".")[0];
-        commandsList.push(fileName);
-    });
-    
-    return commandsList;
+    return _.chain(files)
+        .map(fileWithExtension => { return fileWithExtension.split(".")[0]; }) // remove extension
+        .sortBy(fileNameOnly => { return fileNameOnly.toLowerCase(); }) // sort by lowercase
+        .value();
 };
 
 var commands = {
-    list: [],
+    // TODO - it would be useful if this ended up as a list of objects like below. That would help clean up the code that plays files
+    // {
+    //      command: "beastMode"
+    //      fileName: "beastMode.wav"
+    // }
+    list: [], // e.g: [beastMode, 4ThumbsDown]
     output: function(message) {
         var commandsMessage = "Available soundbytes: [";
         var index = 0;
@@ -90,7 +93,6 @@ bot.on('message', message => {
         } else {
             fs.readdir('./clips', function(err, files) {
                 files.forEach(function(file, index) {
-                    // message.channel.sendMessage("Found file: " + JSON.stringify(file));
                     var fileName = file.split(".")[0];
                     if (fileName == command) {
                         voiceChannel.join().then(connection => {
