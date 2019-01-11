@@ -115,7 +115,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // User joins channel
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
-        newMember.sendMessage(newMember.user.toString());
+        //newMember.sendMessage(newMember.user.toString());
 
         if (newMember.nickname == "ManKyledandan") {
             voiceChannel.join().then(connection => {
@@ -127,7 +127,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
         }
         else if (newMember.nickname == "Rectumis") {
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/RobbieChannelIntro.wav');
+                var dispatcher = connection.playFile('./clips/RobbieHasArrived.wav');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                 });
