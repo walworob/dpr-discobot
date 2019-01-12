@@ -81,7 +81,7 @@ commands.populate();
 // User to prevent commands from interrupting other commands
 var isPlayingClip = false;
 
-// Function to read commands from a text channel
+// Event triggered when a message is sent in a text channel
 bot.on('message', message => {
 
     // Commands are represented by a '!'
@@ -120,7 +120,7 @@ bot.on('message', message => {
     }
 });
 
-// Function to monitor voice channel joins and leaves
+// Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
 bot.on('voiceStateUpdate', (oldMember, newMember) => {
     let newUserChannel = newMember.voiceChannel;
     let oldUserChannel = oldMember.voiceChannel;
@@ -173,6 +173,16 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // User leaves channel
     else if (newUserChannel === undefined) {
         // WE CAN DO WHATEVER HERE
+    }
+});
+
+// Event triggered when a guild member starts/stops talking
+bot.on("guildMemberSpeaking", (member, speaking) => {
+    // Code that kicks Z from the channel when he starts speaking :P
+    if (member.nickname == "Z" && speaking) {
+        member.setVoiceChannel(undefined)
+            .then(() => member.sendMessage("SHUT YOUR MONKEY MOUTH"))
+            .catch(console.error);
     }
 });
 
