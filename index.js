@@ -129,6 +129,8 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // channel from another voice channel.
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
+        var username = newMember.user.username + newMember.user.tag;
+        console.log(username);
         //newMember.sendMessage(newMember.user.toString());
 
         // TODO:    Get everyone's username so these can be replaced with newMember.user
