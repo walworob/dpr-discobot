@@ -129,13 +129,10 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // channel from another voice channel.
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
-        var username = newMember.user.username + newMember.user.tag;
-        console.log(username);
-        //newMember.sendMessage(newMember.user.toString());
+        let username = newMember.user.tag;
 
-        // TODO:    Get everyone's username so these can be replaced with newMember.user
-        //          instead of newMember.nickname. This makes it so that the bot functions
-        //          consistently incase someone changes their nickname.
+        // TODO:    Replace newMember.nickname calls to username. This will allow
+        //          consistent functionality in case people change nicknames.
         // TODO:    Do we want people entering the channel to have their intro songs
         //          interrupt the bot if the bot is already playing a clip? Or just not
         //          play the intro? It is now currently setup so that the bot will not
@@ -150,7 +147,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.nickname == "Rectumis" && !isPlayingClip) {
+        else if (username == "robborg#4693" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
