@@ -179,7 +179,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 // Event triggered when a guild member starts/stops talking
 bot.on("guildMemberSpeaking", (member, speaking) => {
     // Code that kicks Z from the channel when he starts speaking :P
-    if (member.nickname == "Z" && speaking) {
+    if (member.nickname == "Rectumis" && speaking) {
         member.setVoiceChannel(undefined)
             .then(() => member.sendMessage("SHUT YOUR MONKEY MOUTH"))
             .catch(console.error);
