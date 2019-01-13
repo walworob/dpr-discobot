@@ -148,7 +148,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        /*else if (newMember.nickname == "Rectumis" && !isPlayingClip) {
+        else if (newMember.user == "robborg" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
@@ -157,7 +157,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                     isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
-        }*/
+        }
         else if (newMember.nickname == "xKoolaidKam (Nick)" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
@@ -168,23 +168,6 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        
-        if (newMember.nickname == "Rectumis") {
-            // Join the channel if not already in the channel
-            if (!isPlayingClip) {
-                voiceChannel.join()
-            }
-            
-            bot.on("guildMemberSpeaking", (member, speaking) => {
-                // Code that kicks Z from the channel when he starts speaking :P
-                if (member.nickname == "Rectumis" && speaking) {
-                    member.setVoiceChannel(undefined)
-                        .then(() => member.send("SHUT YOUR MONKEY MOUTH"))
-                        .catch(console.error);
-                    voiceChannel.leave();
-                }
-            });
-        }
     }
 
     // User leaves channel
@@ -193,16 +176,19 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     }
 });
 
-// Event triggered when a guild member starts/stops talking
-
-
-
 bot.login('NTMyNDM1Mjk5MDM3MzQ3ODQw.Dxccpg.n-OgT2Lx-f3zLxBKxuzKtsqfClQ');
 
 // TODO:    Read the apiKey from a file on the server. Maybe something like this???
 //          Is this even a secure way to do it? Probably not...
 //var apiKey = fs.readFileSync.toString('key.txt').toString().split("\n")[0];
 //bot.login(apiKey);
+
+
+
+
+
+
+
 
 /*var CommandListString = "";
 const Discord = require("discord.js");
