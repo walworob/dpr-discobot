@@ -148,7 +148,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.user == "robborg" && !isPlayingClip) {
+        else if (newMember.user == "@robborg" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
