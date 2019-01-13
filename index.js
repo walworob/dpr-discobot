@@ -129,10 +129,6 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     // channel from another voice channel.
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
-        console.log(newMember.displayName.toString());
-        console.log(newMember.user.toString());
-        newMember.send(newMember.displayName.toString());
-        newMember.send(newMember.user.toString());
         //newMember.sendMessage(newMember.user.toString());
 
         // TODO:    Get everyone's username so these can be replaced with newMember.user
@@ -152,7 +148,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.user == "@robborg#4693" && !isPlayingClip) {
+        else if (newMember.nickname == "Rectumis" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
