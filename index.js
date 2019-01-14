@@ -175,7 +175,9 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     }
 });
 
-bot.login('NTMyNDM1Mjk5MDM3MzQ3ODQw.Dxccpg.n-OgT2Lx-f3zLxBKxuzKtsqfClQ');
+
+var discordKey = process.env.DISCORD_KEY;
+bot.login(discordKey);
 
 // TODO:    Read the apiKey from a file on the server. Maybe something like this???
 //          Is this even a secure way to do it? Probably not...
@@ -336,5 +338,4 @@ bot.on('message', (message) => {
     }
 });
 
-bot.login('MzU5Mzg2MDE4NjczMDY1OTk1.DY3zWg.XVJ_iK77AJEvVBih-v6X1FFM5a8');
 */

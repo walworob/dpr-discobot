@@ -1,5 +1,8 @@
 # Dread Pirate Roberts - Discord Bot
 
+## Access
+First thing's first. Ask someone who already has this all set up (e.g. Robbie, Kyle) for access to the Heroku project (and github if we haven't made it public yet)
+
 ## SETUP
 It's probably worth mentioning that we followed [this guide](https://github.com/synicalsyntax/discord.js-heroku), so if you want you can just try to follow that. But we've faced some recurring problems and this guide should show you how to get past those, so if you ignore this and go on your own I'll probably tell you to piss off when you ask for help :). 
 
@@ -107,8 +110,25 @@ sudo apt-get install ffmpeg
    ```
    npm install
    ```
+### 10. Set up environment variables
+1. Log in to Heroku:
+   ```
+   heroku login
+   ```
+2. Run the following command to get the discord key from the (hopefully secure) server:
+   ```
+   heroku config:get DISCORD_KEY --app drp-discobot
+   ```
+3. Copy the output
+4. Create a new file at the root of the project called `.env`
+5. Open the file in a text editor and enter the following:
+   ```
+   DISCORD_KEY=that-thing-you-copied-in-step-3-as-is-with-no-quotes
+   ```
+6. Save and close!
+
 ## RUNNING LOCALLY
-1. To run locally, first log in to Heroku:
+1. Log in to Heroku:
    ```
    heroku login
    ```
