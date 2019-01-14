@@ -157,10 +157,20 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.nickname == "xKoolaidKam (Nick)" && !isPlayingClip) {
+        else if (username == "Jenkinz94#4030" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/NickHasArrived.mp3');
+                dispatcher.on("end", end => {
+                    voiceChannel.leave();
+                    isPlayingClip = false;
+                });
+            }).catch(err => console.log(err.toString()));
+        }
+        else if (username == "mrbarron#9498" && !isPlayingClip) {
+            isPlayingClip = true;
+            voiceChannel.join().then(connection => {
+                var dispatcher = connection.playFile('./clips/AlexChannelIntro.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                     isPlayingClip = false;
