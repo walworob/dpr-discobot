@@ -78,65 +78,92 @@ var commands = {
 }
 commands.populate();
 
+// User to prevent commands from interrupting other commands
+var isPlayingClip = false;
+
+// Event triggered when a message is sent in a text channel
 bot.on('message', message => {
 
+    // Commands are represented by a '!'
     if (message.content.charAt(0) == "!") {
         var command = message.content.split("!")[1];
-        var voiceChannel = message.member.voiceChannel;
+        let voiceChannel = message.member.voiceChannel;
 
-        if (command == "cmere") {
-            voiceChannel.join();
-        } else if (command == "gtfo") {
-            voiceChannel.leave();
-        } else if (command == "list") {
-            commands.output(message);
-        } else {
-            fs.readdir('./clips', function(err, files) {
-                files.forEach(function(file, index) {
-                    var fileName = file.split(".")[0];
-                    if (fileName == command) {
-                        voiceChannel.join().then(connection => {
-                            var dispatcher = connection.playFile('./clips/' + file);
-                            dispatcher.on("end", end => {
-                                voiceChannel.leave();
-                            });
-                        }).catch(err => message.reply(err.toString()));
-                    }
+        // If the user isn't in a voiceChannel, do nothing.
+        if (voiceChannel != null)
+        {
+            if (command == "cmere") {
+                voiceChannel.join();
+            } else if (command == "gtfo") {
+                voiceChannel.leave();
+                isPlayingClip = false;
+            } else if (command == "list") {
+                commands.output(message);
+            } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
+                fs.readdir('./clips', function(err, files) {
+                    files.forEach(function(file, index) {
+                        var fileName = file.split(".")[0];
+                        if (fileName == command) {
+                            isPlayingClip = true;
+                            voiceChannel.join().then(connection => {
+                                var dispatcher = connection.playFile('./clips/' + file);
+                                dispatcher.on("end", end => {
+                                    voiceChannel.leave();
+                                    isPlayingClip = false;
+                                });
+                            }).catch(err => message.reply(err.toString()));
+                        }
+                    });
                 });
-            });
-        }
+            }
+        }        
     }
 });
 
+// Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
 bot.on('voiceStateUpdate', (oldMember, newMember) => {
     let newUserChannel = newMember.voiceChannel;
     let oldUserChannel = oldMember.voiceChannel;
 
-    // User joins channel
+    // User joins channel. This does not handle users joining a voice
+    // channel from another voice channel.
     if (oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
+        let username = newMember.user.tag;
 
-        if (newMember.nickname == "ManKyledandan") {
+        // TODO:    Replace newMember.nickname calls to username. This will allow
+        //          consistent functionality in case people change nicknames.
+        // TODO:    Do we want people entering the channel to have their intro songs
+        //          interrupt the bot if the bot is already playing a clip? Or just not
+        //          play the intro? It is now currently setup so that the bot will not
+        //          interrupt.
+        if (newMember.nickname == "ManKyledandan" && !isPlayingClip) {
+            isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/KyleChannelIntro.wav');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
+                    isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.nickname == "Rectumis") {
+        else if (username == "robborg#4693" && !isPlayingClip) {
+            isPlayingClip = true;
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/RobbieChannelIntro.wav');
+                var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
+                    isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (newMember.nickname == "xKoolaidKam (Nick)") {
+        else if (newMember.nickname == "xKoolaidKam (Nick)" && !isPlayingClip) {
+            isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/NickHasArrived.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
+                    isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
         }
@@ -149,6 +176,18 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 });
 
 bot.login('NTMyNDM1Mjk5MDM3MzQ3ODQw.Dxccpg.n-OgT2Lx-f3zLxBKxuzKtsqfClQ');
+
+// TODO:    Read the apiKey from a file on the server. Maybe something like this???
+//          Is this even a secure way to do it? Probably not...
+//var apiKey = fs.readFileSync.toString('key.txt').toString().split("\n")[0];
+//bot.login(apiKey);
+
+
+
+
+
+
+
 
 /*var CommandListString = "";
 const Discord = require("discord.js");
