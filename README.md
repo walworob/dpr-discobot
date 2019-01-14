@@ -90,14 +90,18 @@ If you tried running `npm update` here, you'd get some error about not having "m
 sudo apt-get install build-essential
 ```
 **NOTE:** This takes some time!
-
-### 7. Get the code if you didn't already in the Git setup steps
+### 7. Get FFMPEG (this is used somehow to actually play the files)
+Run the following:
+```
+sudo apt-get install ffmpeg
+```
+### 8. Get the code if you didn't already in the Git setup steps
 1. Navigate to where you want to put the project (mine is at `/mnt/d/git`)
 2. Run this (assuming Robbie gave you access):
      ```
      git clone https://github.com/walworob/dpr-discobot.git
      ```
-### 8. Update your node dependencies (stuff defined in package.json)
+### 9. Update your node dependencies (stuff defined in package.json)
 1. Navigate to the root of the project
 2. Run this:
    ```
