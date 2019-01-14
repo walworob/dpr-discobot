@@ -185,7 +185,6 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     }
 });
 
-console.log("key is: " + process.env.discordKey);
 var discordKey = process.env.DISCORD_KEY;
 bot.login(discordKey);
 
