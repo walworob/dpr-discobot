@@ -167,7 +167,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (username == "mrbarron#9498" && !isPlayingClip) {
+        else if (username == "mr.barron#9498" && !isPlayingClip) {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/AlexChannelIntro.mp3');
