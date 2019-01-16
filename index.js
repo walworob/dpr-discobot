@@ -46,23 +46,22 @@ setInterval(() => {
 var populateCommandsList = function() {
     var files = fs.readdirSync('./clips')
     return _.chain(files)
-        .map(fileWithExtension => { return fileWithExtension.split(".")[0]; }) // remove extension
-        .sortBy(fileNameOnly => { return fileNameOnly.toLowerCase(); }) // sort by lowercase
+        .map(fileWithExtension => {
+            return  {
+                commandName: fileWithExtension.split(".")[0],
+                fileName: fileWithExtension
+            };
+        }).sortBy(fileObject => { return fileObject.commandName.toLowerCase(); }) // sort by lowercase
         .value();
 };
 
 var commands = {
-    // TODO - it would be useful if this ended up as a list of objects like below. That would help clean up the code that plays files
-    // {
-    //      command: "beastMode"
-    //      fileName: "beastMode.wav"
-    // }
     list: [], // e.g: [beastMode, 4ThumbsDown]
     output: function(message) {
         var commandsMessage = "Available soundbytes: [";
         var index = 0;
         this.list.forEach(command => {
-            commandsMessage = commandsMessage.concat("!").concat(command);
+            commandsMessage = commandsMessage.concat("!").concat(command.commandName);
 
             if (index != this.list.length - 1) {
                 commandsMessage = commandsMessage.concat(", ");
@@ -81,40 +80,46 @@ commands.populate();
 // User to prevent commands from interrupting other commands
 var isPlayingClip = false;
 
+var playClip = function(userCommand, voiceChannel) {
+    var commandToPlay = _.find(commands.list, aCommand => {
+        return aCommand.commandName.toLowerCase() === userCommand.toLowerCase();
+    });
+
+    if (!_.isUndefined(commandToPlay)) {
+        isPlayingClip = true;
+        voiceChannel.join().then(connection => {
+            var dispatcher = connection.playFile('./clips/' + commandToPlay.fileName);
+            dispatcher.on("end", end => {
+                voiceChannel.leave();
+                isPlayingClip = false;
+            });
+        }).catch(err => {
+            message.reply(err.toString())
+            voiceChannel.leave();
+            isPlayingClip = false;
+        });
+    }
+};
+
 // Event triggered when a message is sent in a text channel
 bot.on('message', message => {
-
     // Commands are represented by a '!'
     if (message.content.charAt(0) == "!") {
-        var command = message.content.split("!")[1];
+        let userCommand = message.content.split("!")[1];
         let voiceChannel = message.member.voiceChannel;
 
         // If the user isn't in a voiceChannel, do nothing.
-        if (voiceChannel != null)
-        {
-            if (command == "cmere") {
+        if (voiceChannel != null) {
+            if (userCommand == "cmere") {
+                // dunno why you'd ever need this
                 voiceChannel.join();
-            } else if (command == "gtfo") {
+            } else if (userCommand == "gtfo") {
                 voiceChannel.leave();
                 isPlayingClip = false;
-            } else if (command == "list") {
+            } else if (userCommand == "list") {
                 commands.output(message);
             } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
-                fs.readdir('./clips', function(err, files) {
-                    files.forEach(function(file, index) {
-                        var fileName = file.split(".")[0];
-                        if (fileName == command) {
-                            isPlayingClip = true;
-                            voiceChannel.join().then(connection => {
-                                var dispatcher = connection.playFile('./clips/' + file);
-                                dispatcher.on("end", end => {
-                                    voiceChannel.leave();
-                                    isPlayingClip = false;
-                                });
-                            }).catch(err => message.reply(err.toString()));
-                        }
-                    });
-                });
+                playClip(userCommand, voiceChannel);
             }
         }        
     }
