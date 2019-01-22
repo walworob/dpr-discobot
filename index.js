@@ -55,6 +55,7 @@ var playClip = function(userCommand, voiceChannel) {
     }
 };
 
+var introsEnabled = true;
 // Event triggered when a message is sent in a text channel
 bot.on('message', message => {
     // Commands are represented by a '!'
@@ -72,6 +73,11 @@ bot.on('message', message => {
                 isPlayingClip = false;
             } else if (userCommand == "list") {
                 commandsService.outputListToChannel(message.channel);
+            } else if (userCommand == "toggleIntros") {
+                var toggleMessage = "Toggling intro sounds: ";
+                var onOrOff = introsEnabled ? "OFF" : "ON";
+                message.channel.send(toggleMessage + onOrOff);
+                introsEnabled = !introsEnabled;
             } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
                 playClip(userCommand, voiceChannel);
             }
@@ -86,7 +92,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 
     // User joins channel. This does not handle users joining a voice
     // channel from another voice channel.
-    if (oldUserChannel === undefined && newUserChannel !== undefined) {
+    if (introsEnabled && oldUserChannel === undefined && newUserChannel !== undefined) {
         let voiceChannel = newMember.voiceChannel;
         let username = newMember.user.tag;
 
