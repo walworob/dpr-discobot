@@ -37,67 +37,16 @@ setInterval(() => {
 
 // User to prevent commands from interrupting other commands
 var isPlayingClip = false;
-var playClip = function(userCommand, voiceChannel) {
-    var commandToPlay = commandsService.getCommandByName(userCommand);
-    
-    if (!_.isUndefined(commandToPlay)) {
-        isPlayingClip = true;
-        voiceChannel.join().then(connection => {
-            var dispatcher = connection.playFile('./clips/' + commandToPlay.fileName);
-            dispatcher.on("end", end => {
-                voiceChannel.leave();
-                isPlayingClip = false;
-            });
-        }).catch(err => {
-            message.reply(err.toString())
-            voiceChannel.leave();
-            isPlayingClip = false;
-        });
-    }
-};
-
 var introsEnabled = false;
 // Event triggered when a message is sent in a text channel
 bot.on('message', message => {
     // Commands are represented by a '!'
     if (message.content.charAt(0) == "!") {
-        let userCommand = message.content.split("!")[1];
-        let voiceChannel = message.member.voiceChannel;
-
-        // If the user isn't in a voiceChannel, do nothing.
-        if (voiceChannel != null) {
-            if (userCommand == "cmere") {
-                // dunno why you'd ever need this
-                voiceChannel.join();
-            } else if (userCommand == "gtfo") {
-                voiceChannel.leave();
-                isPlayingClip = false;
-            } else if (userCommand == "list") {
-                message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')" )
-                commandsService.outputListToChannel(message.channel);
-            } else if (userCommand == "toggleIntros") {
-                var toggleMessage = "Toggling intro sounds: ";
-                var onOrOff = introsEnabled ? "OFF" : "ON";
-                message.channel.send(toggleMessage + onOrOff);
-                introsEnabled = !introsEnabled;
-            } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
-                playClip(userCommand, voiceChannel);
-            }
-        }        
+        handleCommand(message);        
     }
-
-    if (message.content.charAt(0) == "?") {
-        let userCommand = message.content.split("?")[1];
-        
-        if (userCommand == "list") {
-            commandsService.outputListToChannel(message.channel);
-        } else if (userCommand == "logs") {
-            // TODO -   this is manual so far. We'll need to manually update an environment variable
-            //          each time we raid. It'd be better to hook up to a simple database so we can push logs to it
-            //          directly from discord commands
-            //          https://elements.heroku.com/addons/mongolab
-            message.channel.send("Here's a link to the latest logs: " + latestLogs);
-        }
+    // Queries are represented by a "?"
+    else if (message.content.charAt(0) == "?") {
+        handleQuery(message);
     }
 });
 
@@ -166,3 +115,96 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 
 var discordKey = process.env.DISCORD_KEY;
 bot.login(discordKey);
+
+function playClip(userCommand, voiceChannel) {
+    var commandToPlay = commandsService.getCommandByName(userCommand);
+    if (!_.isUndefined(commandToPlay)) {
+        isPlayingClip = true;
+        voiceChannel.join().then(connection => {
+            var dispatcher = connection.playFile('./clips/' + commandToPlay.fileName);
+            dispatcher.on("end", end => {
+                voiceChannel.leave();
+                isPlayingClip = false;
+            });
+        }).catch(err => {
+            message.reply(err.toString());
+            voiceChannel.leave();
+            isPlayingClip = false;
+        });
+    }
+}
+
+function isManlyDanly(textToCheck) {
+    var isManlyDanly = true;
+    _.every(textToCheck, function (char, index) {
+        if (!((index % 3 == 0 && (char == 'm' || char == "d")) || (index % 3 == 1 && char == 'a') || (index % 3 == 2 && char == 'n'))) {
+            isManlyDanly = false;
+            return false; // (_.every's version of break)
+        }
+    });
+    return isManlyDanly;
+}
+
+function handleQuery(message) {
+    let userQuery = message.content.split("?")[1].toLowerCase();
+    if (isManlyDanly(userQuery)) {
+        var manualMessage = "---------------------------------------------------------------------\n" +
+            "| :sailboat: Dread Pirate Roberts Custom Discord Bot Manual :sailboat: |\n" +
+            "---------------------------------------------------------------------\n" +
+            "\n" +
+            "QUERIES:\n" +
+            "------------\n" +
+            "?man - Outputs the DPR Discord Bot Manual (NOTE: This also works with any combination of 'man's and 'dan's)\n" +
+            "?list - Outputs the list of sound byte commands\n" +
+            "?logs - Outputs the WarcraftLogs from the most recent raid (Assuming we actually remembered to update it!)\n" +
+            "\n" +
+            "COMMANDS:\n" +
+            "-----------------\n" +
+            "!cmere - Force the bot to join your voice channel...for whatever reason\n" +
+            "!gtfo - Gets the bot the fuck out of your voice channel, in case someone plays !beastmode\n" +
+            "!toggleIntros - Toggles ON/OFF intro themes when people join a voice channel";
+            
+        message.channel.send(manualMessage);
+    }
+    else if (userQuery === "list") {
+        commandsService.outputListToChannel(message.channel);
+    }
+    else if (userQuery === "logs") {
+        // TODO -   this is manual so far. We'll need to manually update an environment variable
+        //          each time we raid. It'd be better to hook up to a simple database so we can push logs to it
+        //          directly from discord commands
+        //          https://elements.heroku.com/addons/mongolab
+        message.channel.send("Here's a link to the latest logs: " + latestLogs);
+    } else if (userQuery === "test") {
+        commandsService.getMetaData();
+    } else {
+        message.channel.send("Invalid query. Try typing ?man for options!")
+    }
+}
+
+function handleCommand(message) {
+    let userCommand = message.content.split("!")[1].toLowerCase();
+    let voiceChannel = message.member.voiceChannel;
+    // If the user isn't in a voiceChannel, do nothing.
+    if (voiceChannel != null) {
+        if (userCommand == "cmere") {
+            // dunno why you'd ever need this
+            voiceChannel.join();
+        } else if (userCommand == "gtfo") {
+            voiceChannel.leave();
+            isPlayingClip = false;
+        } else if (userCommand == "list") {
+            message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
+            commandsService.outputListToChannel(message.channel);
+        } else if (userCommand == "toggleIntros") {
+            var toggleMessage = "Toggling intro sounds: ";
+            var onOrOff = introsEnabled ? "OFF" : "ON";
+            message.channel.send(toggleMessage + onOrOff);
+            introsEnabled = !introsEnabled;
+        } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
+            playClip(userCommand, voiceChannel);
+        } else {
+            message.channel.send("Invalid command. Try typing ?man for options!")
+        }
+    }
+}
