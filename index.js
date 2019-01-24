@@ -181,15 +181,17 @@ function handleQuery(message) {
 
 function handleCommand(message) {
     let userCommand = message.content.split("!")[1].toLowerCase();
-    let voiceChannel = message.member.voiceChannel;
-    // If the user isn't in a voiceChannel, do nothing.
-    if (voiceChannel != null) {
+    let voiceChannel = message.member.voiceChannel;    
         if (userCommand == "cmere") {
-            // dunno why you'd ever need this
-            voiceChannel.join();
+            if (voiceChannel != null) {
+                // dunno why you'd ever need this
+                voiceChannel.join();
+            }
         } else if (userCommand == "gtfo") {
-            voiceChannel.leave();
-            isPlayingClip = false;
+            if (voiceChannel != null) {
+                voiceChannel.leave();
+                isPlayingClip = false;
+            }
         } else if (userCommand == "list") {
             message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
             commandsService.outputListToChannel(message.channel);
@@ -199,8 +201,9 @@ function handleCommand(message) {
             message.channel.send(toggleMessage + onOrOff);
             introsEnabled = !introsEnabled;
         } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
-            // sorry, quick hack just to get this working
-            playClip(userCommand, voiceChannel);
+            if (voiceChannel != null) {
+                playClip(userCommand, voiceChannel);
+            }
         } else {
             // TODO - this doesn't work because playClip checks for the validity of the command :\
             message.channel.send("Invalid command. Try typing ?man for options!")   
