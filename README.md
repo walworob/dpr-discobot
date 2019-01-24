@@ -1,6 +1,6 @@
 # Dread Pirate Roberts - Discord Bot
 
-## Access
+## ACCESS
 First thing's first. Ask someone who already has this all set up (e.g. Robbie, Kyle) for access to the Heroku project (and github if we haven't made it public yet)
 
 ## SETUP
@@ -124,6 +124,7 @@ sudo apt-get install ffmpeg
 5. Open the file in a text editor and enter the following:
    ```
    DISCORD_KEY=that-thing-you-copied-in-step-3-as-is-with-no-quotes
+   LATEST_LOGS_URL=https://www.google.com
    ```
 6. Save and close!
 
@@ -135,4 +136,11 @@ sudo apt-get install ffmpeg
 2. Once you authenticate through the browser, start the bot locally with this:
    ```
    heroku local
+   ```
+
+## USAGE
+### Update latest logs (temporary until we get set up with a db)
+1. To upload the URL which points to the latest raid logs, run the following:
+   ```
+   heroku config:set LATEST_LOGS_URL=https://www.warcraftlogs.com/URL/FOR/LATEST/LOGS/FROM/RAID
    ```

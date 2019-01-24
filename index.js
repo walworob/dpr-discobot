@@ -6,6 +6,7 @@ const _ = require("underscore");
 const app = express();
 
 var commandsService = require('./service/commandsService');
+var latestLogs = process.env.LATEST_LOGS_URL;
 
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
@@ -72,6 +73,7 @@ bot.on('message', message => {
                 voiceChannel.leave();
                 isPlayingClip = false;
             } else if (userCommand == "list") {
+                message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')" )
                 commandsService.outputListToChannel(message.channel);
             } else if (userCommand == "toggleIntros") {
                 var toggleMessage = "Toggling intro sounds: ";
@@ -82,6 +84,20 @@ bot.on('message', message => {
                 playClip(userCommand, voiceChannel);
             }
         }        
+    }
+
+    if (message.content.charAt(0) == "?") {
+        let userCommand = message.content.split("?")[1];
+        
+        if (userCommand == "list") {
+            commandsService.outputListToChannel(message.channel);
+        } else if (userCommand == "logs") {
+            // TODO -   this is manual so far. We'll need to manually update an environment variable
+            //          each time we raid. It'd be better to hook up to a simple database so we can push logs to it
+            //          directly from discord commands
+            //          https://elements.heroku.com/addons/mongolab
+            message.channel.send("Here's a link to the latest logs: " + latestLogs);
+        }
     }
 });
 
