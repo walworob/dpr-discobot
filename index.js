@@ -55,7 +55,7 @@ var playClip = function(userCommand, voiceChannel) {
     }
 };
 
-var introsEnabled = true;
+var introsEnabled = false;
 // Event triggered when a message is sent in a text channel
 bot.on('message', message => {
     // Commands are represented by a '!'
