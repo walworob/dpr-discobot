@@ -11,7 +11,6 @@ var latestLogs = process.env.LATEST_LOGS_URL;
 // set the port of our application
 // process.env.PORT lets the port be set by Heroku
 const port = process.env.PORT || 5000;
-var fs = require('fs');
 
 // set the view engine to ejs
 app.set('view engine', 'ejs');
@@ -175,8 +174,6 @@ function handleQuery(message) {
         //          directly from discord commands
         //          https://elements.heroku.com/addons/mongolab
         message.channel.send("Here's a link to the latest logs: " + latestLogs);
-    } else if (userQuery === "test") {
-        commandsService.getMetaData();
     } else {
         message.channel.send("Invalid query. Try typing ?man for options!")
     }
@@ -202,9 +199,11 @@ function handleCommand(message) {
             message.channel.send(toggleMessage + onOrOff);
             introsEnabled = !introsEnabled;
         } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
+            // sorry, quick hack just to get this working
             playClip(userCommand, voiceChannel);
         } else {
-            message.channel.send("Invalid command. Try typing ?man for options!")
+            // TODO - this doesn't work because playClip checks for the validity of the command :\
+            message.channel.send("Invalid command. Try typing ?man for options!")   
         }
     }
 }
