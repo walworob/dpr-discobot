@@ -74,16 +74,6 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (username == "stredd87#5095") {
-            isPlayingClip = true;
-            voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/steve.mp3');
-                dispatcher.on("end", end => {
-                    voiceChannel.leave();
-                    isPlayingClip = false;
-                });
-            }).catch(err => console.log(err.toString()));
-        }
         // else if (username == "robborg#4693") {
         //     isPlayingClip = true;
         //     voiceChannel.join().then(connection => {
