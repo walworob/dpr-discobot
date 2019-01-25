@@ -182,8 +182,6 @@ function handleQuery(message) {
 function handleCommand(message) {
     let userCommand = message.content.split("!")[1].toLowerCase();
     let voiceChannel = message.member.voiceChannel;    
-
-    console.log(userCommand + " - userCommand");
     if (userCommand == "cmere") {
         if (voiceChannel != null) {
             // dunno why you'd ever need this
@@ -198,7 +196,6 @@ function handleCommand(message) {
         message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
         commandsService.outputListToChannel(message.channel);
     } else if (userCommand == "toggleintros") {
-        console.log("made it here");
         var toggleMessage = "Toggling intro sounds: ";
         var onOrOff = introsEnabled ? "OFF" : "ON";
         message.channel.send(toggleMessage + onOrOff);
