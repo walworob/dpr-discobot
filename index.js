@@ -56,7 +56,7 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
 
     // User joins channel. This does not handle users joining a voice
     // channel from another voice channel.
-    if (introsEnabled && oldUserChannel === undefined && newUserChannel !== undefined) {
+    if (introsEnabled && oldUserChannel === undefined && newUserChannel !== undefined && !isPlayingClip) {
         let voiceChannel = newMember.voiceChannel;
         let username = newMember.user.tag;
 
@@ -64,27 +64,37 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
         //          interrupt the bot if the bot is already playing a clip? Or just not
         //          play the intro? It is now currently setup so that the bot will not
         //          interrupt.
-        if (username == "kyhole#3631" && !isPlayingClip) {
+        if (username == "kyhole#3631") {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/KyleChannelIntro.wav');
+                var dispatcher = connection.playFile('./clips/shutUpKyle.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                     isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (username == "robborg#4693" && !isPlayingClip) {
+        else if (username == "stredd87#5095") {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
+                var dispatcher = connection.playFile('./clips/steve.mp3');
                 dispatcher.on("end", end => {
                     voiceChannel.leave();
                     isPlayingClip = false;
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (username == "Jenkinz94#4030" && !isPlayingClip) {
+        // else if (username == "robborg#4693") {
+        //     isPlayingClip = true;
+        //     voiceChannel.join().then(connection => {
+        //         var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
+        //         dispatcher.on("end", end => {
+        //             voiceChannel.leave();
+        //             isPlayingClip = false;
+        //         });
+        //     }).catch(err => console.log(err.toString()));
+        // }
+        else if (username == "Jenkinz94#4030") {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
                 var dispatcher = connection.playFile('./clips/NickHasArrived.mp3');
@@ -94,16 +104,16 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        else if (username == "mr.barron#9498" && !isPlayingClip) {
-            isPlayingClip = true;
-            voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/AlexChannelIntro.mp3');
-                dispatcher.on("end", end => {
-                    voiceChannel.leave();
-                    isPlayingClip = false;
-                });
-            }).catch(err => console.log(err.toString()));
-        }
+        // else if (username == "mr.barron#9498") {
+        //     isPlayingClip = true;
+        //     voiceChannel.join().then(connection => {
+        //         var dispatcher = connection.playFile('./clips/AlexChannelIntro.mp3');
+        //         dispatcher.on("end", end => {
+        //             voiceChannel.leave();
+        //             isPlayingClip = false;
+        //         });
+        //     }).catch(err => console.log(err.toString()));
+        // }
     }
 
     // User leaves channel
