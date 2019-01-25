@@ -94,16 +94,16 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        // else if (username == "mr.barron#9498") {
-        //     isPlayingClip = true;
-        //     voiceChannel.join().then(connection => {
-        //         var dispatcher = connection.playFile('./clips/AlexChannelIntro.mp3');
-        //         dispatcher.on("end", end => {
-        //             voiceChannel.leave();
-        //             isPlayingClip = false;
-        //         });
-        //     }).catch(err => console.log(err.toString()));
-        // }
+        else if (username == "mr.barron#9498") {
+            isPlayingClip = true;
+            voiceChannel.join().then(connection => {
+                var dispatcher = connection.playFile('./clips/AlexHasArrived.mp3');
+                dispatcher.on("end", end => {
+                    voiceChannel.leave();
+                    isPlayingClip = false;
+                });
+            }).catch(err => console.log(err.toString()));
+        }
     }
 
     // User leaves channel
