@@ -21,6 +21,8 @@ fs.readdir('./clips', (err, files) => {
             if (commandsList.length == files.length) {
                 commandsList = _.sortBy(commandsList, command => { return command.commandName.toLowerCase(); });
             }
+        }).catch( err => {
+            console.error(err.message);
         });
     });
 });
@@ -34,19 +36,28 @@ module.exports = {
     outputListToChannel: function(channel) {
         var commandsMessage = "Available soundbytes: \n[ ";
         var index = 0;
-        commandsList.forEach(command => {
-            commandsMessage = commandsMessage.concat("!").concat(command.commandName);
 
+        commandsList.forEach(command => {
+            var appendToCommandsMessage = "!".concat(command.commandName);
             if (!_.isUndefined(command.description)) {
-                commandsMessage = commandsMessage.concat(" - ", command.description);
+                appendToCommandsMessage = appendToCommandsMessage.concat(" - ", command.description);
             }
 
             if (index != commandsList.length - 1) {
-                commandsMessage = commandsMessage.concat("    |    ");
+                appendToCommandsMessage = appendToCommandsMessage.concat("    |    ");
             }
+
+            if (commandsMessage.length + appendToCommandsMessage.length > 1998) {
+                channel.send(commandsMessage);
+                commandsMessage = appendToCommandsMessage;
+            } else {
+                commandsMessage = commandsMessage.concat(appendToCommandsMessage);
+            }
+
             index++;
         });
         commandsMessage = commandsMessage.concat(" ]");
+
         channel.send(commandsMessage);
     }
 };
