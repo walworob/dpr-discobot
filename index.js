@@ -1,5 +1,19 @@
-const Discord = require("discord.js");
-const bot = new Discord.Client();
+const { Client, Intents, Guild } = require("discord.js");
+const { createAudioPlayer,
+        createAudioResource,
+        entersState,
+        getVoiceConnection,
+        joinVoiceChannel,
+        AudioPlayerStatus,
+        StreamType,
+        VoiceConnectionStatus,
+} = require('@discordjs/voice');
+
+// Create the bot
+const bot = new Client({ intents : [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES] });
+
+// Create the audio player
+const audioPlayer = createAudioPlayer();
 
 const express = require('express');
 const _ = require("underscore");
@@ -37,11 +51,23 @@ setInterval(() => {
 // User to prevent commands from interrupting other commands
 var isPlayingClip = false;
 var introsEnabled = false;
+var channel;
+
+bot.once('ready', () => {
+	console.log('Ready!');
+});
+
+// Event triggered when the audio player is idle (i.e. not playing anything)
+audioPlayer.on(AudioPlayerStatus.Idle, () => {
+    const connection = getVoiceConnection(channel.guild.id);
+    connection.destroy();
+})
+
 // Event triggered when a message is sent in a text channel
-bot.on('message', message => {
+bot.on('messageCreate', async (message) => {
     // Commands are represented by a '!'
     if (message.content.charAt(0) == "!") {
-        handleCommand(message);        
+        await handleCommand(message);        
     }
     // Queries are represented by a "?"
     else if (message.content.charAt(0) == "?") {
@@ -50,7 +76,7 @@ bot.on('message', message => {
 });
 
 // Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
-bot.on('voiceStateUpdate', (oldMember, newMember) => {
+/*bot.on('voiceStateUpdate', (oldMember, newMember) => {
     let newUserChannel = newMember.voiceChannel;
     let oldUserChannel = oldMember.voiceChannel;
 
@@ -110,12 +136,12 @@ bot.on('voiceStateUpdate', (oldMember, newMember) => {
     else if (newUserChannel === undefined) {
         // WE CAN DO WHATEVER HERE
     }
-});
+});*/
 
 var discordKey = process.env.DISCORD_KEY;
 bot.login(discordKey);
 
-function playClip(userCommand, voiceChannel) {
+/*function playClip(userCommand, voiceChannel) {
     var commandToPlay = commandsService.getCommandByName(userCommand);
     if (!_.isUndefined(commandToPlay)) {
         isPlayingClip = true;
@@ -131,6 +157,36 @@ function playClip(userCommand, voiceChannel) {
             isPlayingClip = false;
         });
     }
+}*/
+
+function playClip(userCommand, voiceChannel) {
+    const commandToPlay = commandsService.getCommandByName(userCommand);
+    if (!_.isUndefined(commandToPlay)) {
+        // Create the audio resource
+        const resource = createAudioResource('./clips/' + commandToPlay.fileName, {
+            inputType: StreamType.Arbitrary,
+        });
+
+        audioPlayer.play(resource);
+
+        return entersState(audioPlayer, AudioPlayerStatus.Playing);
+    }
+}
+
+async function connectToChannel(channel) {
+	const connection = joinVoiceChannel({
+		channelId: channel.id,
+		guildId: channel.guild.id,
+		adapterCreator: channel.guild.voiceAdapterCreator,
+	});
+
+	try {
+		await entersState(connection, VoiceConnectionStatus.Ready);
+		return connection;
+	} catch (error) {
+		connection.destroy();
+		throw error;
+	}
 }
 
 function isManlyDanly(textToCheck) {
@@ -179,33 +235,33 @@ function handleQuery(message) {
     }
 }
 
-function handleCommand(message) {
+async function handleCommand(message) {
     let userCommand = message.content.split("!")[1].toLowerCase();
-    let voiceChannel = message.member.voiceChannel;    
-    if (userCommand == "cmere") {
-        if (voiceChannel != null) {
-            // dunno why you'd ever need this
-            voiceChannel.join();
+    channel = message.member?.voice.channel;
+
+    if (channel) {
+        if (userCommand == "cmere") {
+            // Create a voice channel
+            const connection = await connectToChannel(channel);
+            connection.subscribe(audioPlayer);
+        } else if (userCommand == "gtfo") {
+            const connection = getVoiceConnection(channel.guild.id);
+            connection.destroy();
+        } else if (userCommand == "list") {
+            message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
+            commandsService.outputListToChannel(message.channel);
+        } else if (userCommand == "toggleintros") {
+            var toggleMessage = "Toggling intro sounds: ";
+            var onOrOff = introsEnabled ? "OFF" : "ON";
+            message.channel.send(toggleMessage + onOrOff);
+            introsEnabled = !introsEnabled;
+        } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
+            const connection = await connectToChannel(channel);
+            connection.subscribe(audioPlayer);
+            playClip(userCommand, channel);
+        } else {
+            // TODO - this doesn't work because playClip checks for the validity of the command :\
+            message.channel.send("Invalid command. Try typing ?man for options!")   
         }
-    } else if (userCommand == "gtfo") {
-        if (voiceChannel != null) {
-            voiceChannel.leave();
-            isPlayingClip = false;
-        }
-    } else if (userCommand == "list") {
-        message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
-        commandsService.outputListToChannel(message.channel);
-    } else if (userCommand == "toggleintros") {
-        var toggleMessage = "Toggling intro sounds: ";
-        var onOrOff = introsEnabled ? "OFF" : "ON";
-        message.channel.send(toggleMessage + onOrOff);
-        introsEnabled = !introsEnabled;
-    } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
-        if (voiceChannel != null) {
-            playClip(userCommand, voiceChannel);
-        }
-    } else {
-        // TODO - this doesn't work because playClip checks for the validity of the command :\
-        message.channel.send("Invalid command. Try typing ?man for options!")   
     }
 }
