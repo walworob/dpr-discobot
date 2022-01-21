@@ -17,6 +17,7 @@ const audioPlayer = createAudioPlayer();
 
 const express = require('express');
 const _ = require("underscore");
+const http = require('http');
 const app = express();
 
 var commandsService = require('./service/commandsService');
@@ -159,7 +160,7 @@ bot.login(discordKey);
     }
 }*/
 
-function playClip(userCommand, voiceChannel) {
+function playClip(userCommand) {
     const commandToPlay = commandsService.getCommandByName(userCommand);
     if (!_.isUndefined(commandToPlay)) {
         // Create the audio resource
@@ -258,7 +259,7 @@ async function handleCommand(message) {
         } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
             const connection = await connectToChannel(channel);
             connection.subscribe(audioPlayer);
-            playClip(userCommand, channel);
+            playClip(userCommand);
         } else {
             // TODO - this doesn't work because playClip checks for the validity of the command :\
             message.channel.send("Invalid command. Try typing ?man for options!")   
