@@ -51,7 +51,7 @@ setInterval(() => {
 
 // User to prevent commands from interrupting other commands
 var isPlayingClip = false;
-var introsEnabled = false;
+var introsEnabled = true;
 var channel;
 
 bot.once('ready', () => {
@@ -77,15 +77,14 @@ bot.on('messageCreate', async (message) => {
 });
 
 // Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
-/*bot.on('voiceStateUpdate', (oldMember, newMember) => {
-    let newUserChannel = newMember.voiceChannel;
-    let oldUserChannel = oldMember.voiceChannel;
+bot.on('voiceStateUpdate', async (oldState, newState) => {
+    channel = newState.channel;
+    const oldUserChannel = oldState.channel;
 
     // User joins channel. This does not handle users joining a voice
     // channel from another voice channel.
-    if (introsEnabled && oldUserChannel === undefined && newUserChannel !== undefined && !isPlayingClip) {
-        let voiceChannel = newMember.voiceChannel;
-        let username = newMember.user.tag;
+    if (introsEnabled && oldUserChannel === null && channel !== null && !isPlayingClip) {
+        const username = newState.member.user.tag;
 
         // TODO:    Do we want people entering the channel to have their intro songs
         //          interrupt the bot if the bot is already playing a clip? Or just not
@@ -101,16 +100,16 @@ bot.on('messageCreate', async (message) => {
                 });
             }).catch(err => console.log(err.toString()));
         }
-        // else if (username == "robborg#4693") {
-        //     isPlayingClip = true;
-        //     voiceChannel.join().then(connection => {
-        //         var dispatcher = connection.playFile('./clips/RobbieHasArrived.mp3');
-        //         dispatcher.on("end", end => {
-        //             voiceChannel.leave();
-        //             isPlayingClip = false;
-        //         });
-        //     }).catch(err => console.log(err.toString()));
-        // }
+        else if (username == "robborg#4693") {
+            isPlayingClip = true;
+            const connection = await connectToChannel(channel);
+            connection.subscribe(audioPlayer);
+            const resource = createAudioResource('./clips/RobbieHasArrived.mp3', {
+                inputType: StreamType.Arbitrary,
+            });
+            audioPlayer.play(resource);
+            return entersState(audioPlayer, AudioPlayerStatus.Playing);
+        }
         else if (username == "Jenkinz94#4030") {
             isPlayingClip = true;
             voiceChannel.join().then(connection => {
@@ -132,12 +131,7 @@ bot.on('messageCreate', async (message) => {
             }).catch(err => console.log(err.toString()));
         }
     }
-
-    // User leaves channel
-    else if (newUserChannel === undefined) {
-        // WE CAN DO WHATEVER HERE
-    }
-});*/
+});
 
 var discordKey = process.env.DISCORD_KEY;
 bot.login(discordKey);
