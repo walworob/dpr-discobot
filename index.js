@@ -50,7 +50,6 @@ setInterval(() => {
 }, 900000);
 
 // User to prevent commands from interrupting other commands
-var isPlayingClip = false;
 var introsEnabled = true;
 var channel;
 
@@ -58,10 +57,15 @@ bot.once('ready', () => {
 	console.log('Ready!');
 });
 
-// Event triggered when the audio player is idle (i.e. not playing anything)
+// Event triggered when the audio player goes idle (i.e. not playing anything)
 audioPlayer.on(AudioPlayerStatus.Idle, () => {
     const connection = getVoiceConnection(channel.guild.id);
     connection.destroy();
+})
+
+// Event triggered when there is an error with the audio player
+audioPlayer.on('error', (error) => {
+    console.error('Error:', error.message, 'with track', error.resource.metadata.title);
 })
 
 // Event triggered when a message is sent in a text channel
@@ -78,57 +82,27 @@ bot.on('messageCreate', async (message) => {
 
 // Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
 bot.on('voiceStateUpdate', async (oldState, newState) => {
+    // Grab the new channel the user joined
     channel = newState.channel;
-    const oldUserChannel = oldState.channel;
 
     // User joins channel. This does not handle users joining a voice
     // channel from another voice channel.
-    if (introsEnabled && oldUserChannel === null && channel !== null && !isPlayingClip) {
+    if (introsEnabled && oldState.channel === null && channel !== null && audioPlayer.state.status === AudioPlayerStatus.Idle) {
+        // Grab the username of the user who joined
         const username = newState.member.user.tag;
 
-        // TODO:    Do we want people entering the channel to have their intro songs
-        //          interrupt the bot if the bot is already playing a clip? Or just not
-        //          play the intro? It is now currently setup so that the bot will not
-        //          interrupt.
+        // Play a clip based on the username
         if (username == "kyhole#3631") {
-            isPlayingClip = true;
-            voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/shutUpKyle.mp3');
-                dispatcher.on("end", end => {
-                    voiceChannel.leave();
-                    isPlayingClip = false;
-                });
-            }).catch(err => console.log(err.toString()));
+            playClip('shutUpKyle.mp3');
         }
         else if (username == "robborg#4693") {
-            isPlayingClip = true;
-            const connection = await connectToChannel(channel);
-            connection.subscribe(audioPlayer);
-            const resource = createAudioResource('./clips/RobbieHasArrived.mp3', {
-                inputType: StreamType.Arbitrary,
-            });
-            audioPlayer.play(resource);
-            return entersState(audioPlayer, AudioPlayerStatus.Playing);
+            playClip('RobbieHasArrived.mp3');
         }
         else if (username == "Jenkinz94#4030") {
-            isPlayingClip = true;
-            voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/NickHasArrived.mp3');
-                dispatcher.on("end", end => {
-                    voiceChannel.leave();
-                    isPlayingClip = false;
-                });
-            }).catch(err => console.log(err.toString()));
+            playClip('NickHasArrived.mp3');
         }
         else if (username == "mr.barron#9498") {
-            isPlayingClip = true;
-            voiceChannel.join().then(connection => {
-                var dispatcher = connection.playFile('./clips/AlexHasArrived.mp3');
-                dispatcher.on("end", end => {
-                    voiceChannel.leave();
-                    isPlayingClip = false;
-                });
-            }).catch(err => console.log(err.toString()));
+            playClip('AlexHasArrived.mp3');
         }
     }
 });
@@ -136,51 +110,42 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
 var discordKey = process.env.DISCORD_KEY;
 bot.login(discordKey);
 
-/*function playClip(userCommand, voiceChannel) {
-    var commandToPlay = commandsService.getCommandByName(userCommand);
-    if (!_.isUndefined(commandToPlay)) {
-        isPlayingClip = true;
-        voiceChannel.join().then(connection => {
-            var dispatcher = connection.playFile('./clips/' + commandToPlay.fileName);
-            dispatcher.on("end", end => {
-                voiceChannel.leave();
-                isPlayingClip = false;
-            });
-        }).catch(err => {
-            message.reply(err.toString());
-            voiceChannel.leave();
-            isPlayingClip = false;
-        });
-    }
-}*/
+async function playClip(clipName) {
+    // Connect the bot to the channel
+    const connection = await connectToChannel(channel);
 
-function playClip(userCommand) {
-    const commandToPlay = commandsService.getCommandByName(userCommand);
-    if (!_.isUndefined(commandToPlay)) {
-        // Create the audio resource
-        const resource = createAudioResource('./clips/' + commandToPlay.fileName, {
-            inputType: StreamType.Arbitrary,
-        });
+    // Subscribe to the audio player
+    connection.subscribe(audioPlayer);
 
-        audioPlayer.play(resource);
+    // Create the audio resource
+    const resource = createAudioResource('./clips/' + clipName, {
+        inputType: StreamType.Arbitrary,
+    });
 
-        return entersState(audioPlayer, AudioPlayerStatus.Playing);
-    }
+    // Play the clip
+    audioPlayer.play(resource);
+
+    // Return when the audio player signals it's playing
+    return entersState(audioPlayer, AudioPlayerStatus.Playing);
 }
 
 async function connectToChannel(channel) {
+    // Create the connection to the voice channel
 	const connection = joinVoiceChannel({
 		channelId: channel.id,
 		guildId: channel.guild.id,
 		adapterCreator: channel.guild.voiceAdapterCreator,
 	});
 
+    // Return when the voice connection is ready, or destroy it if
+    // it never gets to that state
 	try {
 		await entersState(connection, VoiceConnectionStatus.Ready);
 		return connection;
-	} catch (error) {
+	}
+    catch (error) {
 		connection.destroy();
-		throw error;
+        console.error('Error:', error.message);
 	}
 }
 
@@ -225,38 +190,63 @@ function handleQuery(message) {
         //          directly from discord commands
         //          https://elements.heroku.com/addons/mongolab
         message.channel.send("Here's a link to the latest logs: " + latestLogs);
-    } else {
+    }
+    else {
         message.channel.send("Invalid query. Try typing ?man for options!")
     }
 }
 
 async function handleCommand(message) {
-    let userCommand = message.content.split("!")[1].toLowerCase();
+    const userCommand = message.content.split("!")[1].toLowerCase();
     channel = message.member?.voice.channel;
 
     if (channel) {
         if (userCommand == "cmere") {
-            // Create a voice channel
             const connection = await connectToChannel(channel);
             connection.subscribe(audioPlayer);
-        } else if (userCommand == "gtfo") {
-            const connection = getVoiceConnection(channel.guild.id);
-            connection.destroy();
-        } else if (userCommand == "list") {
+        }
+        else if (userCommand == "gtfo") {
+            // Stop the audio player if it's playing. This will cause the bot
+            // to disconnect from the voice channel as well
+            if (audioPlayer.state.status == AudioPlayerStatus.Playing) {
+                console.log("stopping audio player");
+                audioPlayer.stop(true);
+
+                // Return when the audio player signals it's idle
+                return entersState(audioPlayer, AudioPlayerStatus.Idle);
+            }
+            else {
+                // If not playing anything, simply disconnect from the voice channel
+                const connection = getVoiceConnection(channel.guild.id);
+                connection.destroy();
+            }
+        }
+        else if (userCommand == "list") {
             message.channel.send("WARNING: !list is deprecated. Please start using the '?' operator for queries! (e.g. '?list')");
             commandsService.outputListToChannel(message.channel);
-        } else if (userCommand == "toggleintros") {
-            var toggleMessage = "Toggling intro sounds: ";
-            var onOrOff = introsEnabled ? "OFF" : "ON";
+        }
+        else if (userCommand == "toggleintros") {
+            const toggleMessage = "Toggling intro sounds: ";
+            const onOrOff = introsEnabled ? "OFF" : "ON";
             message.channel.send(toggleMessage + onOrOff);
             introsEnabled = !introsEnabled;
-        } else if (!isPlayingClip) { // Don't play another clip if the bot is already playing a clip
-            const connection = await connectToChannel(channel);
-            connection.subscribe(audioPlayer);
-            playClip(userCommand);
-        } else {
-            // TODO - this doesn't work because playClip checks for the validity of the command :\
-            message.channel.send("Invalid command. Try typing ?man for options!")   
+        }
+        else {
+            // Grab the command from commandsService
+            const command = commandsService.getCommandByName(userCommand);
+
+            // Determine if the command is valid
+            if (command !== undefined) {
+                // Play the commanded clip if the audio player is ready
+                if (audioPlayer.state.status === AudioPlayerStatus.Idle) {
+                    const connection = await connectToChannel(channel);
+                    connection.subscribe(audioPlayer);
+                    playClip(command.fileName);
+                }
+            }
+            else {
+                message.channel.send("Invalid command. Try typing ?man for options!")
+            }
         }
     }
 }
