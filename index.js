@@ -27,18 +27,6 @@ var latestLogs = process.env.LATEST_LOGS_URL;
 // process.env.PORT lets the port be set by Heroku
 const port = process.env.PORT || 5000;
 
-// set the view engine to ejs
-app.set('view engine', 'ejs');
-
-// make express look in the `public` directory for assets (css/js/img)
-app.use(express.static(__dirname + '/public'));
-
-// set the home page route
-app.get('/', (request, response) => {
-    // ejs render automatically looks in the views folder
-    response.render('index');
-});
-
 app.listen(port, () => {
     // will echo 'Our app is running on http://localhost:5000 when run locally'
     console.log('Our app is running on http://localhost:' + port);
@@ -209,7 +197,6 @@ async function handleCommand(message) {
             // Stop the audio player if it's playing. This will cause the bot
             // to disconnect from the voice channel as well
             if (audioPlayer.state.status == AudioPlayerStatus.Playing) {
-                console.log("stopping audio player");
                 audioPlayer.stop(true);
 
                 // Return when the audio player signals it's idle
