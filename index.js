@@ -92,6 +92,8 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
         else if (username == "mr.barron#9498") {
             playClip('AlexHasArrived.mp3');
         }
+	else if (username == "Snapps#5034") {
+            playClip('SAMMMMM.mp3');
     }
 });
 
