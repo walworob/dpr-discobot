@@ -110,8 +110,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     } else if (username === 'bryborg#3434') {
       playClip('thebryansong.mp3');
     } else if (username === 'Dru#7852') {
-      //   playClip('My_Name_is_Drew_And_Im_Awesome4.mp3');
-      playClip('Taylor_Swift_-_Teardrops_On_My_Guitar.mp3');
+      playClip('Dr_Dru.mp3');
     }
   }
 });
