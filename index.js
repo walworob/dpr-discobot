@@ -99,19 +99,19 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
   
       // Play a clip based on the username
       if (username == 'kyhole#3631') {
-        playClip('shutUpKyle.mp3');
+        await playClip('shutUpKyle.mp3');
       } else if (username == 'robborg#4693') {
-        playClip('RobbieHasArrived.mp3');
+        await playClip('RobbieHasArrived.mp3');
       } else if (username == 'Jenkinz94#4030') {
-        playClip('NickHasArrived.mp3');
+        await playClip('NickHasArrived.mp3');
       } else if (username == 'mr.barron#9498') {
-        playClip('AlexHasArrived.mp3');
+        await playClip('AlexHasArrived.mp3');
       } else if (username == 'Snapps#5034') {
-        playClip('SAMMMMM.mp3');
+        await playClip('SAMMMMM.mp3');
       } else if (username === 'bryborg#3434') {
-        playClip('thebryansong.mp3');
+        await playClip('thebryansong.mp3');
       } else if (username === 'Dru#7852') {
-        playClip('Dr_Dru.mp3');
+        await playClip('Dr_Dru.mp3');
       }
     }
 
@@ -124,7 +124,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     ) {
       // Bot will join the channel the user left
       channel = oldState.channel;
-      playClip("seeyalata.mp3");
+      await playClip("seeyalata.mp3");
     }
   }
 });
