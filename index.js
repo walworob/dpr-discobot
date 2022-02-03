@@ -82,35 +82,49 @@ bot.on('messageCreate', async (message) => {
 
 // Event triggered when a user changes voice state - e.g. joins/leaves a channel, mutes/unmutes, etc.
 bot.on('voiceStateUpdate', async (oldState, newState) => {
-  // Grab the new channel the user joined
-  channel = newState.channel;
+  // Only process if the audio player currently is idle
+  if (audioPlayer.state.status === AudioPlayerStatus.Idle) {
+    // User joins channel. This does not handle users joining a voice
+    // channel from another voice channel.
+    if (
+      introsEnabled &&
+      oldState.channel === null &&
+      newState.channel !== null
+    ) {
+      // Set the channel for the bot to join
+      channel = newState.channel;
 
-  // User joins channel. This does not handle users joining a voice
-  // channel from another voice channel.
-  if (
-    introsEnabled &&
-    oldState.channel === null &&
-    channel !== null &&
-    audioPlayer.state.status === AudioPlayerStatus.Idle
-  ) {
-    // Grab the username of the user who joined
-    const username = newState.member.user.tag;
+      // Grab the username of the user who joined
+      const username = newState.member.user.tag;
+  
+      // Play a clip based on the username
+      if (username == 'kyhole#3631') {
+        playClip('shutUpKyle.mp3');
+      } else if (username == 'robborg#4693') {
+        playClip('RobbieHasArrived.mp3');
+      } else if (username == 'Jenkinz94#4030') {
+        playClip('NickHasArrived.mp3');
+      } else if (username == 'mr.barron#9498') {
+        playClip('AlexHasArrived.mp3');
+      } else if (username == 'Snapps#5034') {
+        playClip('SAMMMMM.mp3');
+      } else if (username === 'bryborg#3434') {
+        playClip('thebryansong.mp3');
+      } else if (username === 'Dru#7852') {
+        playClip('Dr_Dru.mp3');
+      }
+    }
 
-    // Play a clip based on the username
-    if (username == 'kyhole#3631') {
-      playClip('shutUpKyle.mp3');
-    } else if (username == 'robborg#4693') {
-      playClip('RobbieHasArrived.mp3');
-    } else if (username == 'Jenkinz94#4030') {
-      playClip('NickHasArrived.mp3');
-    } else if (username == 'mr.barron#9498') {
-      playClip('AlexHasArrived.mp3');
-    } else if (username == 'Snapps#5034') {
-      playClip('SAMMMMM.mp3');
-    } else if (username === 'bryborg#3434') {
-      playClip('thebryansong.mp3');
-    } else if (username === 'Dru#7852') {
-      playClip('Dr_Dru.mp3');
+    // User (not a bot) exits channel with users still in it
+    else if (
+      oldState.channel !== null &&
+      newState.channel === null &&
+      !oldState.member.user.bot &&
+      oldState.channel.members.size !== 0
+    ) {
+      // Bot will join the channel the user left
+      channel = oldState.channel;
+      playClip("seeyalata.mp3");
     }
   }
 });
