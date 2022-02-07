@@ -111,7 +111,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
       } else if (username === 'bryborg#3434') {
         await playClip('thebryansong.mp3');
       } else if (username === 'Dru#7852') {
-        await playClip('Dr_Dru.mp3');
+        await playClip('Dr_Dru_v2.mp3');
       }
     }
 
