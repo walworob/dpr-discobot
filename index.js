@@ -96,7 +96,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
 
       // Grab the username of the user who joined
       const username = newState.member.user.tag;
-  
+
       // Play a clip based on the username
       if (username == 'kyhole#3631') {
         await playClip('shutUpKyle.mp3');
@@ -124,7 +124,7 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
     ) {
       // Bot will join the channel the user left
       channel = oldState.channel;
-      await playClip("seeyalata.mp3");
+      await playClip('seeyalata.mp3');
     }
   }
 });
