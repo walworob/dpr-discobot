@@ -113,7 +113,8 @@ bot.on('voiceStateUpdate', async (oldState, newState) => {
       } else if (username === 'Dru#7852') {
         await playClip('Dr_Dru_v2.mp3');
       } else if (username === 'lKoNFlicTl#3922') {
-        await playClip('This_is_Patrick.mp3');
+        // await playClip('This_is_Patrick.mp3');
+        await playClip('Damn_Boy_He_THICC_BOI.mp3');
       }
     }
 
